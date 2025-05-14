@@ -130,4 +130,9 @@ python task3_password_generator.py
 ```
 
 ---
+## 📜 License
 
+These projects are for **educational purposes**.
+Feel free to **modify, share, or integrate** them into your own work.
+
+---
