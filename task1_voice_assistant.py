@@ -6,43 +6,35 @@ import time
 import os
 
 class VoiceAssistant:
-    def __init__(self, name="Assistant"):
+    def __init__(self, name="Jarvis"):
         self.name = name
         
-        # Initialize the speech recognition
+        # Initialize recognizer and TTS engine
         self.recognizer = sr.Recognizer()
-        
-        # Initialize text-to-speech engine
         self.engine = pyttsx3.init()
-        # Set speaking rate
-        self.engine.setProperty('rate', 180)
-        # Set volume
+        self.engine.setProperty('rate', 185)
         self.engine.setProperty('volume', 1.0)
         
-        print(f"{self.name} is starting up...")
-        self.speak(f"Hello, I am {self.name}, your voice assistant. How can I help you today?")
+        print(f"{self.name} is now online...")
+        self.speak(f"Hello! I'm {self.name}, your virtual assistant. Ready when you are.")
     
     def speak(self, text):
-        """Convert text to speech"""
+        """Speak and print text"""
         print(f"{self.name}: {text}")
         self.engine.say(text)
         self.engine.runAndWait()
     
     def listen(self):
-        """Listen for voice input and convert to text"""
+        """Listen and return recognized text"""
         with sr.Microphone() as source:
-            print("Listening...")
-            # Adjust for ambient noise
+            print(f"{self.name} is listening...")
             self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
             try:
                 audio = self.recognizer.listen(source, timeout=5)
-                print("Processing...")
-                
-                # Use Google's speech recognition
+                print("Processing your command...")
                 text = self.recognizer.recognize_google(audio)
                 print(f"You said: {text}")
                 return text.lower()
-                
             except sr.WaitTimeoutError:
                 return "timeout"
             except sr.UnknownValueError:
@@ -54,67 +46,74 @@ class VoiceAssistant:
                 return "error"
     
     def process_command(self, command):
-        """Process the voice command"""
-        # Handle errors or no input
-        if command == "error":
-            self.speak("I didn't catch that. Could you please repeat?")
-            return
-        elif command == "timeout":
-            self.speak("I didn't hear anything. Please try again.")
-            return
+        """Process recognized command"""
+        if command == "timeout":
+            self.speak("I didn't hear anything. Let's try again.")
+            return True
+        elif command == "error":
+            self.speak("Sorry, I didn't catch that. Could you repeat?")
+            return True
         elif command == "network_error":
-            self.speak("I'm having trouble connecting to the internet. Please check your connection.")
-            return
+            self.speak("Network issue detected. Please check your connection.")
+            return True
         
-        # Process commands
+        # Command Processing
         if "hello" in command or "hi" in command:
-            self.speak(f"Hello! How can I help you?")
-            
+            self.speak("Hey! What can I do for you?")
+        
         elif "your name" in command:
-            self.speak(f"My name is {self.name}.")
-            
+            self.speak(f"I'm {self.name}, your virtual assistant.")
+        
         elif "time" in command:
             current_time = datetime.datetime.now().strftime("%I:%M %p")
-            self.speak(f"The current time is {current_time}")
-            
+            self.speak(f"It's currently {current_time}.")
+        
         elif "date" in command:
             current_date = datetime.datetime.now().strftime("%A, %B %d, %Y")
-            self.speak(f"Today is {current_date}")
-            
+            self.speak(f"Today is {current_date}.")
+        
         elif "search" in command or "google" in command:
-            search_terms = command.replace("search", "").replace("google", "").strip()
-            if search_terms:
-                self.speak(f"Searching Google for {search_terms}")
-                webbrowser.open(f"https://www.google.com/search?q={search_terms}")
+            search_query = command.replace("search", "").replace("google", "").strip()
+            if search_query:
+                self.speak(f"Searching Google for {search_query}.")
+                webbrowser.open(f"https://www.google.com/search?q={search_query}")
             else:
-                self.speak("What would you like to search for?")
-                
+                self.speak("Could you please tell me what you'd like to search for?")
+        
         elif "weather" in command:
-            self.speak("To get weather information, I need to be connected to a weather API. This feature will be available in the next version.")
-            
+            self.speak("I'm not yet connected to a weather service. That's coming soon.")
+        
         elif "joke" in command:
-            self.speak("Why don't scientists trust atoms? Because they make up everything!")
-            
+            self.speak("Why don't skeletons fight each other? Because they don't have the guts!")
+        
+        elif "open youtube" in command:
+            self.speak("Opening YouTube.")
+            webbrowser.open("https://www.youtube.com")
+        
+        elif "open notepad" in command:
+            self.speak("Opening Notepad.")
+            os.system("notepad.exe")
+        
+        elif "help" in command:
+            self.speak("You can ask me about the time, date, jokes, search Google, or open websites like YouTube. Say 'exit' to stop me.")
+        
         elif "exit" in command or "quit" in command or "goodbye" in command or "bye" in command:
-            self.speak("Goodbye! Have a great day!")
+            self.speak("Goodbye. Talk to you soon.")
             return False
-            
+        
         else:
-            self.speak("I'm not sure how to help with that yet. I'm still learning!")
+            self.speak("I'm still learning that. Try saying 'help' to see what I can assist you with.")
         
         return True
 
 def main():
-    # Create the voice assistant
-    assistant = VoiceAssistant("Jarvis")
-    
+    assistant = VoiceAssistant()
     running = True
     while running:
         command = assistant.listen()
         running = assistant.process_command(command)
-        time.sleep(0.5)  # Slight pause between commands
-    
-    print("Voice assistant has been shut down.")
+        time.sleep(0.5)
+    print(f"{assistant.name} has been turned off.")
 
 if __name__ == "__main__":
     main()
